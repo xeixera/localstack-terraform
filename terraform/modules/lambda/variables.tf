@@ -1,8 +1,3 @@
-variable "lambda-role" {
-  type        = string
-  default     = "ifocus-lambda-role"
-}
-
 variable "sqs-arn" {
   type = string
 }
@@ -10,4 +5,13 @@ variable "sqs-arn" {
 variable "dynamodb-arn" {
   type = string
 }
+
+variable "lambda-role-arn" {
+  type = string
+}
+
+variable "lambda-exec" {
+  type = string
+}
+
 
