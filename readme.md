@@ -1,33 +1,87 @@
-# baixar aws cli
+# Subindo infraestrutura AWS de forma automática simulada com Terraform + Localstack
+
+```bash
+#instalando awscli
 sudo apt install awscli -y
 
-# 3. Instalar Terraform
-# https://developer.hashicorp.com/terraform/install
+#instalando terraform
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
 
-# 4. Clonar o projeto
-git clone 
-cd localstack-ifocus
+wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
 
-# 5. Subir o LocalStack
-docker compose up -d
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
-# 6. Configurar AWS CLI para o LocalStack
+sudo apt-get update && sudo apt-get install -y terraform
+
+#teste com
+terraform --version
+```
+# Configurar usuário para uso simplificado na awscli
+```bash
 aws configure --profile localstack
 
-AWS Access Key ID: test
-AWS Secret Access Key: test
+AWS Access Key ID: root
+AWS Secret Access Key: root
 Default region name: us-east-1
 Default output format: json
+```
 
-Testar perfil:
-aws --profile localstack --endpoint-url=http://localhost:4566 sts get-caller-identity
+# Chave Localstack (Hobby-Pro)
+Adicionar chave do localstack no arquivo _.env_, caso não possua chave basta ir no site oficial do localstack e obter
+uma chave do tipo Hobby de maneira gratuita, clicando [aqui](https://app.localstack.cloud/getting-started)
 
-Testar após dar apply: serviços
+# Clonar o repositório e utilizar o terraform + localstack
+```bash
+git clone https://github.com/xeixera/localstack-terraform.git
+cd ./localstack-ifocus
 
-aws --profile localstack --endpoint-url=http://localhost:4566 s3api list-buckets
+#iniciar localstack
+docker compose up -d
+cd ./terraform
 
-aws --profile localstack --endpoint-url=http://localhost:4566 iam list-users
+#iniciando infraestrutura
+terraform fmt && terraform validate && terraform plan
+terraform apply
+```
 
-aws --profile localstack --endpoint-url=http://localhost:4566 sqs list-queues
+# Testar serviços
+```bash
+#buckets s3
+aws --profile localstack --endpoint-url http://localhost:4566 s3 ls
+aws --profile localstack --endpoint-url http://localhost:4566 s3 cp something.txt s3://ifocus-bucket/
 
-aws --profile localstack --endpoint-url=http://localhost:4566 dynamodb list-tables
+#iam
+aws --profile localstack --endpoint-url http://localhost:4566 iam list-users
+aws --profile localstack --endpoint-url http://localhost:4566 iam list-roles
+aws --profile localstack --endpoint-url http://localhost:4566 iam get-role-policy --role-name ifocus-lambda-role --policy-name ifocus-lambda-policy
+
+#fila sqs
+aws --profile localstack --endpoint-url http://localhost:4566 sqs list-queues
+
+#dynamodb
+aws --profile localstack --endpoint-url http://localhost:4566 dynamodb list-tables
+
+#função lambda
+aws --profile localstack --endpoint-url http://localhost:4566 lambda list-functions
+```
+
+# SQS e comunicação com o Banco via Lambda
+```bash
+#url do sqs
+aws --profile localstack --endpoint-url http://localhost:4566 sqs get-queue-url --queue-name ifocus-sqs
+
+
+#envio de mensagem teste
+aws --profile localstack --endpoint-url http://localhost:4566 sqs send-message \
+  --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/ifocus-sqs \
+  --message-body '{"teste":"hello mundo!","origem":"terraform"}'
+
+#processamento no lambda
+aws --profile localstack --endpoint-url http://localhost:4566 \
+  sqs get-queue-attributes \
+  --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/ifocus-sqs \
+  --attribute-names ApproximateNumberOfMessages
+
+#visualizar no dynamodb
+aws --profile localstack --endpoint-url http://localhost:4566 dynamodb scan --table-name ifocus-db-1
+```

@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "ifocus-bd" {
-  name         = var.nome-dynamobd
+  name         = var.dynamodb-name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 
