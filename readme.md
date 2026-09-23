@@ -1,22 +1,23 @@
-# Subindo infraestrutura AWS de forma automática simulada com Terraform + Localstack
+# Deploying AWS infrastructure automatically simulated with Terraform + Localstack
 
 ```bash
-#instalando awscli
+#installing awscli
 sudo apt install awscli -y
 
-#instalando terraform
+#installing terraform
 sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
 
-wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+wget -O- https://hashicorp.com | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
 
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://hashicorp.com \$(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
 sudo apt-get update && sudo apt-get install -y terraform
 
-#teste com
+#test with
 terraform --version
 ```
-# Configurar usuário para uso simplificado na awscli
+
+# Configure user for simplified use with awscli
 ```bash
 aws configure --profile localstack
 
@@ -26,27 +27,46 @@ Default region name: us-east-1
 Default output format: json
 ```
 
-# Chave Localstack (Hobby-Pro)
-Adicionar chave do localstack no arquivo _.env_, caso não possua chave basta ir no site oficial do localstack e obter
-uma chave do tipo Hobby de maneira gratuita, clicando [aqui](https://app.localstack.cloud/getting-started)
+# Localstack Key (Hobby-Pro)
+Add the localstack key into the _.env_ file. If you don't have a key, just go to the official localstack website and get a Hobby tier key for free by clicking [here](https://localstack.cloud)
 
-# Clonar o repositório e utilizar o terraform + localstack
+# Clone the repository and use terraform + localstack
 ```bash
-git clone https://github.com/xeixera/localstack-terraform.git
+git clone https://github.com
 cd ./localstack-ifocus
 
-#iniciar localstack
+#start localstack
 docker compose up -d
 cd ./terraform
 
-#iniciando infraestrutura
+#starting infrastructure
 terraform fmt && terraform validate && terraform plan
 terraform apply
 ```
 
-# Testar serviços
+# Also see (shellscripts)
+The project includes temporarily two shell scripts to automate the deployment and destruction lifecycle across both **Dev** and **Prod** environments. Before running them, grant execution permissions:
+
+### 1. Deploy Infrastructure (`apply.sh`)
+This script automates the validation, planning, and deployment for both environments sequentially. At the end, it queries the local simulated AWS services to guarantee successful device creation.
+
+### 2. Destroy Infrastructure (`destroy.sh`)
+This script safely tears down all created resources in both environments using automated approval flags.
+
 ```bash
-#buckets s3
+#grant execution perms
+chmod 700 apply.sh destroy.sh
+
+#run apply to initiate de project
+./apply.sh
+
+#run destroy to... destroy everthying xD
+./destroy.sh
+```
+
+# Test services
+```bash
+#s3 buckets
 aws --profile localstack --endpoint-url http://localhost:4566 s3 ls
 aws --profile localstack --endpoint-url http://localhost:4566 s3 cp something.txt s3://ifocus-bucket/
 
@@ -55,33 +75,33 @@ aws --profile localstack --endpoint-url http://localhost:4566 iam list-users
 aws --profile localstack --endpoint-url http://localhost:4566 iam list-roles
 aws --profile localstack --endpoint-url http://localhost:4566 iam get-role-policy --role-name ifocus-lambda-role --policy-name ifocus-lambda-policy
 
-#fila sqs
+#sqs queue
 aws --profile localstack --endpoint-url http://localhost:4566 sqs list-queues
 
 #dynamodb
 aws --profile localstack --endpoint-url http://localhost:4566 dynamodb list-tables
 
-#função lambda
+#lambda function
 aws --profile localstack --endpoint-url http://localhost:4566 lambda list-functions
 ```
 
-# SQS e comunicação com o Banco via Lambda
+# SQS and Database communication via Lambda
 ```bash
-#url do sqs
+#sqs url
 aws --profile localstack --endpoint-url http://localhost:4566 sqs get-queue-url --queue-name ifocus-sqs
 
 
-#envio de mensagem teste
+#send test message
 aws --profile localstack --endpoint-url http://localhost:4566 sqs send-message \
-  --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/ifocus-sqs \
-  --message-body '{"teste":"hello mundo!","origem":"terraform"}'
+  --queue-url http://localstack.cloud \
+  --message-body '{"test":"hello world!","origin":"terraform"}'
 
-#processamento no lambda
+#lambda processing
 aws --profile localstack --endpoint-url http://localhost:4566 \
   sqs get-queue-attributes \
-  --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/ifocus-sqs \
+  --queue-url http://localstack.cloud \
   --attribute-names ApproximateNumberOfMessages
 
-#visualizar no dynamodb
+#view in dynamodb
 aws --profile localstack --endpoint-url http://localhost:4566 dynamodb scan --table-name ifocus-db-1
 ```

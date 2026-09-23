@@ -1,11 +1,22 @@
-variable "iam-user" {
-  description = "iam user"
-  type        = string
-  default     = "ifocus-user"
-}
 variable "sqs-arn" {
   type = string
 }
 variable "dynamodb-arn" {
   type = string
+}
+
+variable "bucket-s3-policy" {
+type = string
+}
+
+variable "iam-user" {
+type = string
+}
+
+variable "lambda-policy" {
+type = string
+}
+
+variable "lambda-role" {
+type = string
 }

@@ -1,11 +1,11 @@
-resource "aws_iam_user" "user1-iam" {
+resource "aws_iam_user" "user-iam" {
   name = var.iam-user
 }
 
 #s3 permission policy
 resource "aws_iam_user_policy" "bucket-s3" {
-  name = "bucket-s3-policy"
-  user = aws_iam_user.user1-iam.name
+  name = var.bucket-s3-policy
+  user = aws_iam_user.user-iam.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -29,7 +29,7 @@ resource "aws_iam_user_policy" "bucket-s3" {
 
 #lambda role conf
 resource "aws_iam_role" "lambda-role" {
-  name = "lambda-role-1"
+  name = var.lambda-role
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -51,7 +51,7 @@ resource "aws_iam_role" "lambda-role" {
 
 #lambda role iam permission policy
 resource "aws_iam_role_policy" "lambda-policy" {
-  name = "lambda-policy-1"
+  name = var.lambda-policy
 
   role = aws_iam_role.lambda-role.id
 
