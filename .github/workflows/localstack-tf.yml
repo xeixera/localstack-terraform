@@ -1,0 +1,73 @@
+name: localstack-tf
+
+on:
+  push:
+    branches:
+      - main
+      - test
+
+  pull_request:
+    branches:
+      - main
+      - test
+
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+#this env is only here because its a lab, obviously if youre using real AWS credentials dont leave them here G.G
+    env:
+      AWS_ACCESS_KEY_ID: root
+      AWS_SECRET_ACCESS_KEY: root
+      AWS_DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: start localstack
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        run: docker compose up -d
+
+      - name: wait localstack
+        run: |
+          for i in {1..30}; do
+            if curl -fs http://localhost:4566/_localstack/health; then
+              exit 0
+            fi
+            echo "Waiting for localstack..."
+            sleep 2
+          done
+          echo "Localstack didnt start"
+          exit 1  
+      
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: backend init
+        working-directory: ./terraform/backend
+        run: terraform init
+
+      - name: backend apply
+        working-directory: ./terraform/backend
+        run: terraform apply -auto-approve
+
+      - name: dev init
+        working-directory: ./terraform/environments/dev
+        run: terraform init
+
+      - name: dev plan
+        working-directory: ./terraform/environments/dev
+        run: terraform plan
+
+      - name: terraform-fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform-validate
+        run: terraform validate
+      
+      - name: terraform-init
+        run: terraform init
