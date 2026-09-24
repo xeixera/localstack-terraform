@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - test
 
   pull_request:
     branches:
       - main
-  
+      - test
+
   workflow_dispatch:
 
 jobs:
@@ -19,5 +21,11 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: testing
-        run: echo "if this appear, its working ;p"
+      - name: setup-terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: terraform-fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform-validate
+        run: terraform validate
