@@ -21,7 +21,24 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: setup-terraform
+      - name: start localstack
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        run: docker compose up -d
+
+      - name: wait localstack
+        run: |
+          for i in {1..30}; do
+            if curl -fs http://localhost:4566/_localstack/health; then
+              exit 0
+            fi
+            echo "Waiting for localstack..."
+            sleep 2
+          done
+          echo "Localstack didnt start"
+          exit 1  
+
+      - name: setup terraform
         uses: hashicorp/setup-terraform@v3
 
       - name: terraform-fmt
