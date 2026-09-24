@@ -44,3 +44,23 @@ module "dynamodb" {
   source        = "../../modules/dynamodb"
   dynamodb-name = local.dynamodb-name
 }
+
+#sharing tfstate to a s3 bucket for multiaccess
+terraform {
+  backend "s3" {
+    bucket = "s3-terraform-state"
+    key    = "dev/terraform.tfstate"
+    region = "us-east-1"
+
+    access_key = "root"
+    secret_key = "root"
+    endpoints = {
+      s3 = "http://localhost:4566"
+    }
+
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+    use_path_style              = true
+  }
+}
