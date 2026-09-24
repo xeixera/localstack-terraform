@@ -11,7 +11,7 @@ locals {
   bucket-s3-policy = "${local.project}-s3-policy"
   lambda-policy    = "${local.project}-lambda-policy"
   lambda-role      = "${local.project}-${local.environment}-lambda-role"
-  
+
   queues = {
     main = "${local.project}-${local.environment}-sqs-main"
     test = "${local.project}-${local.environment}-sqs-test"

@@ -6,17 +6,17 @@ variable "dynamodb-arn" {
 }
 
 variable "bucket-s3-policy" {
-type = string
+  type = string
 }
 
 variable "iam-user" {
-type = string
+  type = string
 }
 
 variable "lambda-policy" {
-type = string
+  type = string
 }
 
 variable "lambda-role" {
-type = string
+  type = string
 }
