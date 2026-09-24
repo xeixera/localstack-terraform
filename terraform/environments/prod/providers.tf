@@ -1,8 +1,8 @@
 provider "aws" {
   region = "us-east-1"
 
-  access_key = "test"
-  secret_key = "test"
+  access_key = "root"
+  secret_key = "root"
 
   s3_use_path_style = true
 
