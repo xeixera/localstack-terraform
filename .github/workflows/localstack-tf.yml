@@ -37,12 +37,23 @@ jobs:
           done
           echo "Localstack didnt start"
           exit 1  
-
+      
       - name: setup terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: backend init
+        working-directory: ./terraform/backend
+        run: terraform init
+
+      - name: backend apply
+        working-directory: ./terraform/backend
+        run: terraform apply -auto-approve
 
       - name: terraform-fmt
         run: terraform fmt -check -recursive
 
       - name: terraform-validate
         run: terraform validate
+      
+      - name: terraform-init
+        run: terraform init
