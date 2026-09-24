@@ -17,6 +17,12 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+#this env is only here because its a lab, obviously if youre using real AWS credentials dont leave them here G.G
+    env:
+      AWS_ACCESS_KEY_ID: root
+      AWS_SECRET_ACCESS_KEY: root
+      AWS_DEFAULT_REGION: us-east-1
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -48,6 +54,14 @@ jobs:
       - name: backend apply
         working-directory: ./terraform/backend
         run: terraform apply -auto-approve
+
+      - name: dev init
+        working-directory: ./terraform/environments/dev
+        run: terraform init
+
+      - name: dev plan
+        working-directory: ./terraform/environments/dev
+        run: terraform plan
 
       - name: terraform-fmt
         run: terraform fmt -check -recursive
