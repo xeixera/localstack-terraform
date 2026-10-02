@@ -10,7 +10,7 @@ module "iam" {
   source           = "../../modules/iam"
   iam-user         = local.environment
   sqs-arn          = module.sqs.sqs-arn["main"]
-  s3-arn           = module.s3.bucket-arn
+  s3-arn           = module.s3.s3-arn
   dynamodb-arn     = module.dynamodb.arn
   bucket-s3-policy = local.bucket-s3-policy
   lambda-policy    = local.lambda-policy
