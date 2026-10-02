@@ -2,6 +2,7 @@
 module "s3" {
   source      = "../../modules/s3"
   bucket-name = local.bucket-name
+  s3-arn      = module.s3.bucket-arn
 }
 
 
