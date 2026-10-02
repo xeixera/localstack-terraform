@@ -60,13 +60,17 @@ jobs:
         run: terraform init
 
       - name: dev plan
+        working-directory: ./terraform/environments/dev
         run: terraform plan
 
       - name: dev-fmt
+        working-directory: ./terraform/environments/dev
         run: terraform fmt -check -recursive
 
       - name: dev-validate
+        working-directory: ./terraform/environments/dev
         run: terraform validate
 
       - name: dev-apply
+        working-directory: ./terraform/environments/dev
         run: terraform apply -auto-approve
