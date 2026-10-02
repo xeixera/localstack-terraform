@@ -10,12 +10,12 @@ module "iam" {
   source           = "../../modules/iam"
   iam-user         = local.environment
   sqs-arn          = module.sqs.sqs-arn["main"]
+  s3-arn           = module.s3.bucket-arn
   dynamodb-arn     = module.dynamodb.arn
   bucket-s3-policy = local.bucket-s3-policy
   lambda-policy    = local.lambda-policy
   lambda-role      = local.lambda-role
 }
-
 
 #sqs module
 module "sqs" {
@@ -26,17 +26,25 @@ module "sqs" {
 
 
 #lambda module
-module "lambda" {
-  source          = "../../modules/lambda"
-  sqs-arn         = module.sqs.sqs-arn["main"]
-  lambda-role-arn = module.iam.lambda-role-arn
-  dynamodb-arn    = module.dynamodb.arn
-  lambda-exec     = local.lambda-exec
-
+module "lambda-worker" {
+  source             = "../../modules/lambda-worker"
+  sqs-arn            = module.sqs.sqs-arn["main"]
+  lambda-worker-arn  = module.iam.lambda-role-arn
+  lambda-worker-name = local.lambda-worker-name
+  tablename-dynamodb = module.dynamodb.tablename-dynamodb
   depends_on = [
     module.iam
   ]
+
 }
+
+module "lambda-api" {
+  source              = "../../modules/lambda-api"
+  url-sqs             = module.sqs.url-sqs["main"]
+  lambda-api-role-arn = module.iam.api-lambda-role-arn
+  lambda-api-name     = "${local.environment}-lambda-api"
+}
+
 
 
 #dynamodb module
