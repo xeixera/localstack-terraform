@@ -5,6 +5,10 @@ output "iam-user-name" {
 
 output "lambda-role-arn" {
   description = "arn from iam role used by lambda"
-  value       = aws_iam_role.lambda-role.arn
+  value       = aws_iam_role.WORKER-LAMBDA-ROLE.arn
 }
 
+output "api-lambda-role-arn" {
+  description = "arn from iam role used by lambda"
+  value       = aws_iam_role.API-LAMBDA-ROLE.arn
+}

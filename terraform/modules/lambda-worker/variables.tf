@@ -2,16 +2,14 @@ variable "sqs-arn" {
   type = string
 }
 
-variable "dynamodb-arn" {
+variable "lambda-worker-arn" {
   type = string
 }
 
-variable "lambda-role-arn" {
+variable "lambda-worker-name" {
   type = string
 }
 
-variable "lambda-exec" {
+variable "tablename-dynamodb" {
   type = string
 }
-
-

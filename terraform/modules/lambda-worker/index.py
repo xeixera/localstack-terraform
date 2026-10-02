@@ -1,7 +1,9 @@
-import boto3
+import boto3, os
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table("ifocus-bd-1")
+
+TABLE_NAME = os.environ["DYNAMODB_TABLE"]
+table = dynamodb.Table(TABLE_NAME)
 
 
 def lambda_handler(event, context):

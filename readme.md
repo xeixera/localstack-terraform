@@ -84,8 +84,8 @@
 
   ```
 
-  # Also see (shellscripts)
-  The project includes temporarily two shell scripts to automate the deployment and destruction lifecycle across both **Dev** and **Prod** environments. Before running them, grant execution permissions:
+  # Also see (shellscripts for easy development)
+  The project includes temporarily two shell scripts to automate the apply and destruction lifecycle across both **Dev** and **Prod** environments. Before running them, grant execution permissions.
 
   ### 1. Deploy Infrastructure (`apply.sh`)
   This script automates the validation, planning, and deployment for both environments sequentially. At the end, it queries the local simulated AWS services to guarantee successful device creation.

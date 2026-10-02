@@ -5,6 +5,10 @@ variable "dynamodb-arn" {
   type = string
 }
 
+variable "s3-arn" {
+  type = string
+}
+
 variable "bucket-s3-policy" {
   type = string
 }
